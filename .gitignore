@@ -1,0 +1,16 @@
+# окружение
+.venv/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+.DS_Store
+.claude/
+
+# код парсера и его артефакты — в этот репозиторий не выкладываются
+src/
+tests/
+data/
+
+# распакованный дамп (в репозитории лежит только .sql.gz)
+sql/velostok_data.sql

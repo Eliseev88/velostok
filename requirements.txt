@@ -1,0 +1,7 @@
+# Витрина спарсенных товаров
+Flask>=3.0
+PyMySQL>=1.1
+python-dotenv>=1.0
+
+# Генерация ER-схемы базы в PNG (scripts/er_diagram.py)
+matplotlib>=3.8

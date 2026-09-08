@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block headstats %}
+<div class="stats">
+  <div><b>{{ "{:,}".format(stats.total).replace(",", " ") }}</b>товаров</div>
+  <div><b>{{ "{:,}".format(stats.priced).replace(",", " ") }}</b>с ценой</div>
+  <div><b>{{ stats.brands }}</b>брендов</div>
+  <div><b>{{ stats.in_stock }}</b>в наличии</div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+
+  <form class="panel" method="get" style="align-self:start">
+    <h3>Фильтры</h3>
+
+    <div class="field">
+      <label>Поиск по названию</label>
+      <input type="text" name="q" value="{{ args.get('q','') }}" placeholder="Cube, Stels…">
+    </div>
+
+    <div class="field">
+      <label>Бренд</label>
+      <select name="brand">
+        <option value="">все бренды</option>
+        {% for b in brands %}
+        <option value="{{ b.brand }}" {% if args.get('brand')==b.brand %}selected{% endif %}>
+          {{ b.brand }} ({{ b.n }})
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Год</label>
+      <select name="year">
+        <option value="">любой</option>
+        {% for y in years %}
+        <option value="{{ y.year }}" {% if args.get('year')==y.year|string %}selected{% endif %}>
+          {{ y.year }} ({{ y.n }})
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Наличие</label>
+      <select name="availability">
+        <option value="">любое</option>
+        {% for key, val in labels.items() %}
+        <option value="{{ key }}" {% if args.get('availability')==key %}selected{% endif %}>
+          {{ val[0] }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Цена, ₽</label>
+      <div class="row2">
+        <input type="text" name="price_min" placeholder="от" value="{{ args.get('price_min','') }}">
+        <input type="text" name="price_max" placeholder="до" value="{{ args.get('price_max','') }}">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="check">
+        <input type="checkbox" name="only_priced" value="1"
+               {% if args.get('only_priced') %}checked{% endif %}>
+        только с ценой
+      </label>
+    </div>
+
+    <input type="hidden" name="sort" value="{{ sort_key }}">
+    <button class="btn" type="submit">Показать</button>
+    <a class="btn btn-ghost" href="/">Сбросить</a>
+  </form>
+
+  <div>
+    <div class="toolbar">
+      <div class="found">Найдено <b>{{ "{:,}".format(total).replace(",", " ") }}</b></div>
+      <select onchange="location.href=this.value">
+        {% for key, val in sorts.items() %}
+        {% set qs = [] %}
+        {% for k, v in args.items() if k not in ('sort','page') %}
+          {% set _ = qs.append(k ~ '=' ~ v) %}
+        {% endfor %}
+        {% set _ = qs.append('sort=' ~ key) %}
+        <option value="/?{{ qs|join('&') }}" {% if sort_key==key %}selected{% endif %}>
+          {{ val[1] }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {% if bikes %}
+    <div class="grid">
+      {% for b in bikes %}
+      <a class="card" href="/bike/{{ b.id }}">
+        <div class="thumb">
+          <div class="badges">
+            {% if b.discount_pct %}<span class="badge b-sale">−{{ b.discount_pct }}%</span>{% endif %}
+            {% if b.availability=='in_stock' %}<span class="badge b-ok">в наличии</span>{% endif %}
+          </div>
+          {% if b.main_image %}
+            <img src="{{ b.main_image }}" alt="{{ b.name }}" loading="lazy">
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <div class="brand">{{ b.brand or '—' }}{% if b.year %} · {{ b.year }}{% endif %}</div>
+          <div class="cname">{{ b.name }}</div>
+          <div class="prices">
+            <span class="price">{{ b.price|money }}</span>
+            {% if b.old_price %}<span class="old">{{ b.old_price|money }}</span>{% endif %}
+          </div>
+          {% set lb = labels.get(b.availability, ('—','off')) %}
+          <div class="avail a-{{ lb[1] }}">{{ lb[0] }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    {% if pages > 1 %}
+    <div class="pager">
+      {% set base = [] %}
+      {% for k, v in args.items() if k != 'page' %}{% set _ = base.append(k ~ '=' ~ v) %}{% endfor %}
+      {% macro link(p, text=None) %}
+        <a href="/?{{ (base + ['page=' ~ p])|join('&') }}">{{ text or p }}</a>
+      {% endmacro %}
+      {% if page > 1 %}{{ link(page-1, '← назад') }}{% endif %}
+      {% if page > 3 %}{{ link(1) }}<span>…</span>{% endif %}
+      {% for p in range([1, page-2]|max, [pages, page+2]|min + 1) %}
+        {% if p == page %}<span class="cur">{{ p }}</span>{% else %}{{ link(p) }}{% endif %}
+      {% endfor %}
+      {% if page < pages - 2 %}<span>…</span>{{ link(pages) }}{% endif %}
+      {% if page < pages %}{{ link(page+1, 'вперёд →') }}{% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="panel empty">Ничего не найдено — попробуй ослабить фильтры.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

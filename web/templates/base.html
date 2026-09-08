@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}ВелоСклад — витрина{% endblock %}</title>
+<style>
+  :root{
+    --bg:#f5f7f9; --card:#fff; --ink:#1e2a33; --muted:#7a8894;
+    --line:#e2e8ed; --accent:#2f4858; --accent2:#4a7a8c;
+    --ok:#2f7a4f; --wait:#b5651d; --off:#96a1ab; --sale:#d6342b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1380px;margin:0 auto;padding:0 22px}
+
+  header{background:var(--accent);color:#fff;padding:16px 0}
+  .head{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .logo{font-size:20px;font-weight:700;letter-spacing:-.3px}
+  .logo span{color:#9ec6d6}
+  .stats{margin-left:auto;display:flex;gap:22px;font-size:13px;color:#c3d6e0;flex-wrap:wrap}
+  .stats b{color:#fff;font-size:15px;display:block}
+
+  .layout{display:grid;grid-template-columns:250px 1fr;gap:24px;padding:24px 0 48px}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .panel h3{margin:0 0 12px;font-size:13px;text-transform:uppercase;
+    letter-spacing:.6px;color:var(--muted)}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+  input,select{width:100%;padding:8px 10px;border:1px solid var(--line);
+    border-radius:8px;font-size:14px;background:#fff;color:var(--ink)}
+  .row2{display:flex;gap:8px}
+  .btn{display:block;width:100%;padding:10px;background:var(--accent2);color:#fff;
+    border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;text-align:center}
+  .btn:hover{background:#3d6878}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line);margin-top:8px}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink)}
+  .check input{width:auto}
+
+  .toolbar{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+  .found{color:var(--muted);font-size:14px}
+  .found b{color:var(--ink)}
+  .toolbar select{width:auto;margin-left:auto}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;display:flex;flex-direction:column;transition:.15s}
+  .card:hover{box-shadow:0 6px 20px rgba(31,45,58,.10);transform:translateY(-2px)}
+  .thumb{aspect-ratio:4/3;background:#fff;display:flex;align-items:center;
+    justify-content:center;padding:12px;position:relative}
+  .thumb img{max-width:100%;max-height:100%;object-fit:contain}
+  .badges{position:absolute;top:9px;left:9px;display:flex;flex-direction:column;gap:5px}
+  .badge{font-size:11px;font-weight:700;padding:3px 7px;border-radius:5px;color:#fff}
+  .b-sale{background:var(--sale)}
+  .b-ok{background:var(--ok)}
+  .card-body{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1}
+  .brand{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .cname{font-size:14px;font-weight:600;margin:3px 0 8px;line-height:1.35;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .prices{margin-top:auto;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .price{font-size:17px;font-weight:700}
+  .old{font-size:13px;color:var(--muted);text-decoration:line-through}
+  .avail{font-size:12px;margin-top:6px}
+  .a-ok{color:var(--ok)} .a-wait{color:var(--wait)} .a-off{color:var(--off)}
+
+  .pager{display:flex;gap:6px;justify-content:center;margin:28px 0 0;flex-wrap:wrap}
+  .pager a,.pager span{padding:8px 13px;border-radius:8px;border:1px solid var(--line);
+    background:#fff;font-size:14px}
+  .pager .cur{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .empty{padding:60px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap head">
+    <a href="/" class="logo">Вело<span>Склад</span> · витрина</a>
+    {% block headstats %}{% endblock %}
+  </div>
+</header>
+<div class="wrap">{% block content %}{% endblock %}</div>
+</body>
+</html>
