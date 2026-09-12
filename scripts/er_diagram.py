@@ -18,6 +18,8 @@ HEAD_PARTS = "#4a5c3a"
 HEAD_PARTS_CHILD = "#6d8456"
 HEAD_ACC = "#5a4763"
 HEAD_ACC_CHILD = "#7d6a87"
+HEAD_EQ = "#6b3f3f"
+HEAD_EQ_CHILD = "#96685f"
 BODY = "#ffffff"
 BORDER = "#c9d2d9"
 TEXT_HEAD = "#ffffff"
@@ -31,8 +33,8 @@ PAD = 0.35
 
 TABLES = {
     "crawl_queue": {
-        "pos": (0.5, 10.4),
-        "width": 5.6,
+        "pos": (0.5, 27.9),
+        "width": 7.0,
         "head": HEAD_SERVICE,
         "note": "состояние обхода",
         "cols": [
@@ -48,7 +50,7 @@ TABLES = {
         ],
     },
     "bikes": {
-        "pos": (7.6, 16.1),
+        "pos": (7.6, 33.6),
         "width": 6.4,
         "head": HEAD_MAIN,
         "note": "карточка товара",
@@ -78,8 +80,8 @@ TABLES = {
         ],
     },
     "bike_specs": {
-        "pos": (16.8, 16.1),
-        "width": 5.9,
+        "pos": (16.8, 33.6),
+        "width": 7.6,
         "head": HEAD_CHILD,
         "note": "характеристики (EAV)",
         "cols": [
@@ -91,8 +93,8 @@ TABLES = {
         ],
     },
     "bike_images": {
-        "pos": (16.8, 11.9),
-        "width": 5.9,
+        "pos": (16.8, 29.4),
+        "width": 7.6,
         "head": HEAD_CHILD,
         "note": "фото (только URL)",
         "cols": [
@@ -103,8 +105,8 @@ TABLES = {
         ],
     },
     "bike_sizes": {
-        "pos": (16.8, 8.3),
-        "width": 5.9,
+        "pos": (16.8, 25.8),
+        "width": 7.6,
         "head": HEAD_CHILD,
         "note": "ростовки в наличии",
         "cols": [
@@ -114,8 +116,8 @@ TABLES = {
         ],
     },
     "bike_features": {
-        "pos": (16.8, 5.0),
-        "width": 5.9,
+        "pos": (16.8, 22.5),
+        "width": 7.6,
         "head": HEAD_CHILD,
         "note": "особенности",
         "cols": [
@@ -125,8 +127,8 @@ TABLES = {
         ],
     },
     "parts_queue": {
-        "pos": (32.9, 8.1),
-        "width": 5.6,
+        "pos": (8.6, 8.1),
+        "width": 7.6,
         "head": HEAD_SERVICE,
         "note": "состояние обхода",
         "cols": [
@@ -141,7 +143,7 @@ TABLES = {
         ],
     },
     "parts": {
-        "pos": (24.8, 16.1),
+        "pos": (0.5, 16.1),
         "width": 6.2,
         "head": HEAD_PARTS,
         "note": "запчасть",
@@ -165,8 +167,8 @@ TABLES = {
         ],
     },
     "part_specs": {
-        "pos": (32.9, 16.1),
-        "width": 5.9,
+        "pos": (8.6, 16.1),
+        "width": 7.6,
         "head": HEAD_PARTS_CHILD,
         "note": "характеристики (EAV)",
         "cols": [
@@ -177,8 +179,8 @@ TABLES = {
         ],
     },
     "part_images": {
-        "pos": (32.9, 12.1),
-        "width": 5.9,
+        "pos": (8.6, 12.1),
+        "width": 7.6,
         "head": HEAD_PARTS_CHILD,
         "note": "фото (только URL)",
         "cols": [
@@ -189,8 +191,8 @@ TABLES = {
         ],
     },
     "accessories_queue": {
-        "pos": (49.0, 8.1),
-        "width": 7.2,
+        "pos": (26.0, 8.1),
+        "width": 7.6,
         "head": HEAD_SERVICE,
         "note": "состояние обхода",
         "cols": [
@@ -205,7 +207,7 @@ TABLES = {
         ],
     },
     "accessories": {
-        "pos": (40.9, 16.1),
+        "pos": (17.9, 16.1),
         "width": 6.2,
         "head": HEAD_ACC,
         "note": "аксессуар",
@@ -229,8 +231,8 @@ TABLES = {
         ],
     },
     "accessory_specs": {
-        "pos": (49.0, 16.1),
-        "width": 7.2,
+        "pos": (26.0, 16.1),
+        "width": 7.6,
         "head": HEAD_ACC_CHILD,
         "note": "характеристики (EAV)",
         "cols": [
@@ -241,12 +243,76 @@ TABLES = {
         ],
     },
     "accessory_images": {
-        "pos": (49.0, 12.1),
-        "width": 7.2,
+        "pos": (26.0, 12.1),
+        "width": 7.6,
         "head": HEAD_ACC_CHILD,
         "note": "фото (только URL)",
         "cols": [
             ("accessory_id", "BIGINT", "PK,FK"),
+            ("position", "SMALLINT", "PK"),
+            ("url", "VARCHAR(512)", ""),
+            ("is_main", "BOOLEAN", ""),
+        ],
+    },
+    "equipment_queue": {
+        "pos": (44.7, 8.1),
+        "width": 7.6,
+        "head": HEAD_SERVICE,
+        "note": "состояние обхода",
+        "cols": [
+            ("equipment_id", "BIGINT", "PK"),
+            ("url", "VARCHAR(512)", ""),
+            ("status", "ENUM(5)", "idx"),
+            ("attempts", "TINYINT", ""),
+            ("http_status", "SMALLINT", ""),
+            ("error", "TEXT", ""),
+            ("fetched_at", "DATETIME", ""),
+            ("updated_at", "DATETIME", ""),
+        ],
+    },
+    "equipment": {
+        "pos": (36.6, 16.1),
+        "width": 6.2,
+        "head": HEAD_EQ,
+        "note": "экипировка",
+        "cols": [
+            ("id", "BIGINT", "PK"),
+            ("url", "VARCHAR(512)", ""),
+            ("name", "VARCHAR(512)", ""),
+            ("brand", "VARCHAR(128)", "idx"),
+            ("model", "VARCHAR(255)", ""),
+            ("sku", "VARCHAR(64)", ""),
+            ("category", "VARCHAR(128)", "idx"),
+            ("subcategory", "VARCHAR(128)", "idx"),
+            ("price", "DECIMAL(10,2)", "idx"),
+            ("old_price", "DECIMAL(10,2)", ""),
+            ("discount_pct", "TINYINT", ""),
+            ("currency", "CHAR(3)", ""),
+            ("availability", "ENUM(4)", "idx"),
+            ("description", "TEXT", ""),
+            ("main_image", "VARCHAR(512)", ""),
+            ("parsed_at", "DATETIME", ""),
+        ],
+    },
+    "equipment_specs": {
+        "pos": (44.7, 16.1),
+        "width": 7.6,
+        "head": HEAD_EQ_CHILD,
+        "note": "характеристики (EAV)",
+        "cols": [
+            ("equipment_id", "BIGINT", "PK,FK"),
+            ("position", "SMALLINT", "PK"),
+            ("name", "VARCHAR(128)", "idx"),
+            ("value", "TEXT", ""),
+        ],
+    },
+    "equipment_images": {
+        "pos": (44.7, 12.1),
+        "width": 7.6,
+        "head": HEAD_EQ_CHILD,
+        "note": "фото (только URL)",
+        "cols": [
+            ("equipment_id", "BIGINT", "PK,FK"),
             ("position", "SMALLINT", "PK"),
             ("url", "VARCHAR(512)", ""),
             ("is_main", "BOOLEAN", ""),
@@ -270,6 +336,11 @@ PARTS_RELATIONS = [
 ACC_RELATIONS = [
     ("accessory_specs", "accessories", "1 : N"),
     ("accessory_images", "accessories", "1 : N"),
+]
+
+EQ_RELATIONS = [
+    ("equipment_specs", "equipment", "1 : N"),
+    ("equipment_images", "equipment", "1 : N"),
 ]
 
 
@@ -299,7 +370,7 @@ def draw_table(ax, name, spec):
             color=TEXT_HEAD, fontsize=12.5, fontweight="bold",
             va="center", ha="left", zorder=4, family="DejaVu Sans")
     ax.text(x + w - 0.3, top - HEAD_H * 0.42, spec["note"],
-            color="#dbe6ec", fontsize=8.4, va="center", ha="right",
+            color="#dbe6ec", fontsize=7.9, va="center", ha="right",
             zorder=4, style="italic", family="DejaVu Sans")
 
     for i, (col, typ, key) in enumerate(spec["cols"]):
@@ -322,11 +393,11 @@ def draw_table(ax, name, spec):
 
 
 def main(out="db_schema.png"):
-    fig, ax = plt.subplots(figsize=(38.5, 12.6), dpi=170)
+    fig, ax = plt.subplots(figsize=(30, 21), dpi=170)
     fig.patch.set_facecolor(BG)
     ax.set_facecolor(BG)
-    ax.set_xlim(0, 56.9)
-    ax.set_ylim(-0.5, 18.7)
+    ax.set_xlim(0, 53.6)
+    ax.set_ylim(-0.5, 36.2)
     ax.axis("off")
 
     boxes = {name: draw_table(ax, name, spec) for name, spec in TABLES.items()}
@@ -425,13 +496,51 @@ def main(out="db_schema.png"):
             ha="center", va="center", zorder=5, family="DejaVu Sans",
             bbox=dict(boxstyle="round,pad=0.2", facecolor=BG, edgecolor="none"))
 
-    ax.text(40.9, 16.45, "АКСЕССУАРЫ · 519", fontsize=11, fontweight="bold",
+    ax.text(17.9, 16.5, "АКСЕССУАРЫ · 519", fontsize=11, fontweight="bold",
             color=HEAD_ACC, family="DejaVu Sans")
 
+    # связи «дочерняя -> equipment.id»
+    epx, epy, epw, eph = boxes["equipment"]
+    eq_anchor_x = epx + epw
+    for idx, (child, _parent, label) in enumerate(EQ_RELATIONS):
+        cx, cy, cw, ch = boxes[child]
+        child_y = cy + ch - HEAD_H - ROW_H * 0.5
+        parent_y = epy + eph - HEAD_H - ROW_H * 0.5
+        corridor = cx - 0.35 - 0.42 * idx
+        ax.plot([cx, corridor], [child_y, child_y],
+                color=LINE, linewidth=1.5, zorder=1, solid_capstyle="round")
+        ax.plot([corridor, corridor], [child_y, parent_y],
+                color=LINE, linewidth=1.5, zorder=1, solid_capstyle="round")
+        ax.annotate("", xy=(eq_anchor_x, parent_y), xytext=(corridor, parent_y),
+                    arrowprops=dict(arrowstyle="-|>,head_width=0.32,head_length=0.6",
+                                    color=LINE, linewidth=1.5, shrinkA=0, shrinkB=2),
+                    zorder=1)
+        ax.text(corridor, child_y + 0.24, label,
+                fontsize=8.6, color=MUTED, ha="center", va="bottom",
+                zorder=5, family="DejaVu Sans",
+                bbox=dict(boxstyle="round,pad=0.18", facecolor=BG, edgecolor="none"))
+
+    eqx, eqy, eqw, eqh = boxes["equipment_queue"]
+    eq_row_y = eqy + eqh - HEAD_H - ROW_H * 0.5
+    eqm_row_y = epy + eph - HEAD_H - ROW_H * 0.5
+    ax.add_patch(FancyArrowPatch(
+        (eqx, eq_row_y), (eq_anchor_x, eqm_row_y),
+        connectionstyle="arc3,rad=0.14",
+        arrowstyle="-|>,head_width=4,head_length=7",
+        color="#c0a58b", linewidth=1.5, linestyle=(0, (5, 3)), zorder=1,
+        shrinkA=3, shrinkB=3))
+    ax.text((eqx + eq_anchor_x) / 2, (eq_row_y + eqm_row_y) / 2 - 1.0,
+            "1 : 1 логически\n(без FK)", fontsize=8.4, color="#a3846a",
+            ha="center", va="center", zorder=5, family="DejaVu Sans",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor=BG, edgecolor="none"))
+
+    ax.text(36.6, 16.5, "ЭКИПИРОВКА · 221", fontsize=11, fontweight="bold",
+            color=HEAD_EQ, family="DejaVu Sans")
+
     # заголовки семейств
-    ax.text(0.5, 16.45, "ВЕЛОСИПЕДЫ · 16 176", fontsize=11, fontweight="bold",
+    ax.text(0.5, 34.0, "ВЕЛОСИПЕДЫ · 16 176", fontsize=11, fontweight="bold",
             color=HEAD_MAIN, family="DejaVu Sans")
-    ax.text(24.8, 16.45, "ЗАПЧАСТИ · 1 016", fontsize=11, fontweight="bold",
+    ax.text(0.5, 16.5, "ЗАПЧАСТИ · 1 016", fontsize=11, fontweight="bold",
             color=HEAD_PARTS, family="DejaVu Sans")
 
     # логическая связь crawl_queue -> bikes (без FK: очередь живёт своей жизнью)
@@ -449,10 +558,10 @@ def main(out="db_schema.png"):
             ha="center", va="bottom", zorder=5, family="DejaVu Sans",
             bbox=dict(boxstyle="round,pad=0.2", facecolor=BG, edgecolor="none"))
 
-    ax.text(0.5, 18.25, "velostok — схема базы данных",
+    ax.text(0.5, 35.7, "velostok — схема базы данных",
             fontsize=19, fontweight="bold", color=TEXT, family="DejaVu Sans")
-    ax.text(0.5, 17.72,
-            "Товары, спарсенные с velosklad.ru  ·  MySQL 9.3, utf8mb4  ·  16 176 велосипедов, 1 016 запчастей, 519 аксессуаров",
+    ax.text(0.5, 35.15,
+            "Товары, спарсенные с velosklad.ru  ·  MySQL 9.3, utf8mb4  ·  17 932 товара в четырёх разделах",
             fontsize=10.5, color=MUTED, family="DejaVu Sans")
 
     legend = [
@@ -461,14 +570,14 @@ def main(out="db_schema.png"):
         (MUTED, "idx — индекс"),
     ]
     for i, (color, text) in enumerate(legend):
-        ax.text(0.55, 2.35 - i * 0.52, "■", fontsize=10, color=color,
+        ax.text(26.5, 31.2 - i * 0.52, "■", fontsize=10, color=color,
                 va="center", family="DejaVu Sans")
-        ax.text(1.05, 2.35 - i * 0.52, text, fontsize=9.4, color=TEXT,
+        ax.text(27.0, 31.2 - i * 0.52, text, fontsize=9.4, color=TEXT,
                 va="center", family="DejaVu Sans")
 
     ax.text(0.5, -0.35,
             "Каждый раздел каталога живёт в своём семействе таблиц. У велосипедов есть год, класс, пол и ростовки; "
-            "у запчастей и аксессуаров вместо них — категория с подкатегорией.\nЗапчасти и аксессуары делят одно "
+            "у запчастей, аксессуаров и экипировки вместо них — категория с подкатегорией.\nЭти три раздела делят одно "
             "пространство ID на сайте, но с ID велосипедов оно не связано. Характеристики везде хранятся по модели EAV.",
             fontsize=9, color=MUTED, va="bottom", family="DejaVu Sans")
 

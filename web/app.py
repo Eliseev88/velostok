@@ -177,6 +177,11 @@ CATALOG_SECTIONS = {
         "main": "accessories", "specs": "accessory_specs", "images": "accessory_images",
         "id_col": "accessory_id", "list_url": "/accessories", "item_url": "/accessory",
     },
+    "equipment": {
+        "title": "Экипировка", "one": "позиций",
+        "main": "equipment", "specs": "equipment_specs", "images": "equipment_images",
+        "id_col": "equipment_id", "list_url": "/equipment", "item_url": "/equipment-item",
+    },
 }
 
 
@@ -312,6 +317,16 @@ def accessories():
 @app.route("/accessory/<int:item_id>")
 def accessory(item_id):
     return item_view("accessories", item_id)
+
+
+@app.route("/equipment")
+def equipment():
+    return catalog_view("equipment")
+
+
+@app.route("/equipment-item/<int:item_id>")
+def equipment_item(item_id):
+    return item_view("equipment", item_id)
 
 
 @app.template_filter("money")

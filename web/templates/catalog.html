@@ -16,7 +16,7 @@
 
     <div class="field">
       <label>Поиск по названию</label>
-      <input type="text" name="q" value="{{ args.get('q','') }}" placeholder="{{ 'Shimano, камера…' if section == 'parts' else 'фонарь, насос…' }}">
+      <input type="text" name="q" value="{{ args.get('q','') }}" placeholder="{{ {'parts': 'Shimano, камера…', 'accessories': 'фонарь, насос…', 'equipment': 'шлем, перчатки…'}[section] }}">
     </div>
 
     <div class="field">
