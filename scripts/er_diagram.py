@@ -14,6 +14,8 @@ BG = "#f7f8fa"
 HEAD_MAIN = "#2f4858"
 HEAD_CHILD = "#4a7a8c"
 HEAD_SERVICE = "#8c6a4a"
+HEAD_PARTS = "#4a5c3a"
+HEAD_PARTS_CHILD = "#6d8456"
 BODY = "#ffffff"
 BORDER = "#c9d2d9"
 TEXT_HEAD = "#ffffff"
@@ -120,6 +122,70 @@ TABLES = {
             ("feature", "VARCHAR(255)", ""),
         ],
     },
+    "parts_queue": {
+        "pos": (32.9, 8.1),
+        "width": 5.6,
+        "head": HEAD_SERVICE,
+        "note": "состояние обхода",
+        "cols": [
+            ("part_id", "BIGINT", "PK"),
+            ("url", "VARCHAR(512)", ""),
+            ("status", "ENUM(5)", "idx"),
+            ("attempts", "TINYINT", ""),
+            ("http_status", "SMALLINT", ""),
+            ("error", "TEXT", ""),
+            ("fetched_at", "DATETIME", ""),
+            ("updated_at", "DATETIME", ""),
+        ],
+    },
+    "parts": {
+        "pos": (24.8, 16.1),
+        "width": 6.2,
+        "head": HEAD_PARTS,
+        "note": "запчасть",
+        "cols": [
+            ("id", "BIGINT", "PK"),
+            ("url", "VARCHAR(512)", ""),
+            ("name", "VARCHAR(512)", ""),
+            ("brand", "VARCHAR(128)", "idx"),
+            ("model", "VARCHAR(255)", ""),
+            ("sku", "VARCHAR(64)", ""),
+            ("category", "VARCHAR(128)", "idx"),
+            ("subcategory", "VARCHAR(128)", "idx"),
+            ("price", "DECIMAL(10,2)", "idx"),
+            ("old_price", "DECIMAL(10,2)", ""),
+            ("discount_pct", "TINYINT", ""),
+            ("currency", "CHAR(3)", ""),
+            ("availability", "ENUM(4)", "idx"),
+            ("description", "TEXT", ""),
+            ("main_image", "VARCHAR(512)", ""),
+            ("parsed_at", "DATETIME", ""),
+        ],
+    },
+    "part_specs": {
+        "pos": (32.9, 16.1),
+        "width": 5.9,
+        "head": HEAD_PARTS_CHILD,
+        "note": "характеристики (EAV)",
+        "cols": [
+            ("part_id", "BIGINT", "PK,FK"),
+            ("position", "SMALLINT", "PK"),
+            ("name", "VARCHAR(128)", "idx"),
+            ("value", "TEXT", ""),
+        ],
+    },
+    "part_images": {
+        "pos": (32.9, 12.1),
+        "width": 5.9,
+        "head": HEAD_PARTS_CHILD,
+        "note": "фото (только URL)",
+        "cols": [
+            ("part_id", "BIGINT", "PK,FK"),
+            ("position", "SMALLINT", "PK"),
+            ("url", "VARCHAR(512)", ""),
+            ("is_main", "BOOLEAN", ""),
+        ],
+    },
 }
 
 # (дочерняя, родительская, подпись)
@@ -128,6 +194,11 @@ RELATIONS = [
     ("bike_images", "bikes", "1 : N"),
     ("bike_sizes", "bikes", "1 : N"),
     ("bike_features", "bikes", "1 : N"),
+]
+
+PARTS_RELATIONS = [
+    ("part_specs", "parts", "1 : N"),
+    ("part_images", "parts", "1 : N"),
 ]
 
 
@@ -180,11 +251,11 @@ def draw_table(ax, name, spec):
 
 
 def main(out="db_schema.png"):
-    fig, ax = plt.subplots(figsize=(16.2, 11.8), dpi=170)
+    fig, ax = plt.subplots(figsize=(25.5, 12.2), dpi=170)
     fig.patch.set_facecolor(BG)
     ax.set_facecolor(BG)
-    ax.set_xlim(0, 23.3)
-    ax.set_ylim(-0.5, 17.6)
+    ax.set_xlim(0, 39.4)
+    ax.set_ylim(-0.5, 18.7)
     ax.axis("off")
 
     boxes = {name: draw_table(ax, name, spec) for name, spec in TABLES.items()}
@@ -212,6 +283,48 @@ def main(out="db_schema.png"):
                 zorder=5, family="DejaVu Sans",
                 bbox=dict(boxstyle="round,pad=0.18", facecolor=BG, edgecolor="none"))
 
+    # связи «дочерняя -> parts.id»
+    ppx, ppy, ppw, pph = boxes["parts"]
+    parts_anchor_x = ppx + ppw
+    for idx, (child, _parent, label) in enumerate(PARTS_RELATIONS):
+        cx, cy, cw, ch = boxes[child]
+        child_y = cy + ch - HEAD_H - ROW_H * 0.5
+        parent_y = ppy + pph - HEAD_H - ROW_H * 0.5
+        corridor = cx - 0.35 - 0.42 * idx
+        ax.plot([cx, corridor], [child_y, child_y],
+                color=LINE, linewidth=1.5, zorder=1, solid_capstyle="round")
+        ax.plot([corridor, corridor], [child_y, parent_y],
+                color=LINE, linewidth=1.5, zorder=1, solid_capstyle="round")
+        ax.annotate("", xy=(parts_anchor_x, parent_y), xytext=(corridor, parent_y),
+                    arrowprops=dict(arrowstyle="-|>,head_width=0.32,head_length=0.6",
+                                    color=LINE, linewidth=1.5, shrinkA=0, shrinkB=2),
+                    zorder=1)
+        ax.text(corridor, child_y + 0.24, label,
+                fontsize=8.6, color=MUTED, ha="center", va="bottom",
+                zorder=5, family="DejaVu Sans",
+                bbox=dict(boxstyle="round,pad=0.18", facecolor=BG, edgecolor="none"))
+
+    # parts_queue -> parts, тоже без FK
+    pqx, pqy, pqw, pqh = boxes["parts_queue"]
+    pq_row_y = pqy + pqh - HEAD_H - ROW_H * 0.5
+    parts_row_y = ppy + pph - HEAD_H - ROW_H * 0.5
+    ax.add_patch(FancyArrowPatch(
+        (pqx, pq_row_y), (parts_anchor_x, parts_row_y),
+        connectionstyle="arc3,rad=0.14",
+        arrowstyle="-|>,head_width=4,head_length=7",
+        color="#c0a58b", linewidth=1.5, linestyle=(0, (5, 3)), zorder=1,
+        shrinkA=3, shrinkB=3))
+    ax.text((pqx + parts_anchor_x) / 2, (pq_row_y + parts_row_y) / 2 - 1.0,
+            "1 : 1 логически\n(без FK)", fontsize=8.4, color="#a3846a",
+            ha="center", va="center", zorder=5, family="DejaVu Sans",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor=BG, edgecolor="none"))
+
+    # заголовки семейств
+    ax.text(0.5, 16.45, "ВЕЛОСИПЕДЫ · 16 176", fontsize=11, fontweight="bold",
+            color=HEAD_MAIN, family="DejaVu Sans")
+    ax.text(24.8, 16.45, "ЗАПЧАСТИ · 1 016", fontsize=11, fontweight="bold",
+            color=HEAD_PARTS, family="DejaVu Sans")
+
     # логическая связь crawl_queue -> bikes (без FK: очередь живёт своей жизнью)
     qx, qy, qw, qh = boxes["crawl_queue"]
     q_row_y = qy + qh - HEAD_H - ROW_H * 0.5
@@ -227,10 +340,10 @@ def main(out="db_schema.png"):
             ha="center", va="bottom", zorder=5, family="DejaVu Sans",
             bbox=dict(boxstyle="round,pad=0.2", facecolor=BG, edgecolor="none"))
 
-    ax.text(0.5, 17.15, "velostok — схема базы данных",
+    ax.text(0.5, 18.25, "velostok — схема базы данных",
             fontsize=19, fontweight="bold", color=TEXT, family="DejaVu Sans")
-    ax.text(0.5, 16.62,
-            "Карточки велосипедов, спарсенные с velosklad.ru  ·  MySQL 9.3, utf8mb4  ·  16 176 товаров",
+    ax.text(0.5, 17.72,
+            "Товары, спарсенные с velosklad.ru  ·  MySQL 9.3, utf8mb4  ·  16 176 велосипедов и 1 016 запчастей",
             fontsize=10.5, color=MUTED, family="DejaVu Sans")
 
     legend = [
@@ -245,9 +358,9 @@ def main(out="db_schema.png"):
                 va="center", family="DejaVu Sans")
 
     ax.text(0.5, -0.35,
-            "Характеристики вынесены в отдельную таблицу по модели EAV: их набор плавает "
-            "от 8 до 50 у разных товаров\nи под фиксированные колонки не сводится. "
-            "Дочерние таблицы перезаписываются целиком при каждом разборе карточки.",
+            "Велосипеды и запчасти живут в отдельных семействах таблиц: у запчастей нет года, класса, "
+            "пола и ростовок, зато есть категория,\nа их ID выдаются в собственном пространстве и в принципе "
+            "могут совпасть с ID велосипедов. Характеристики в обоих случаях хранятся по модели EAV.",
             fontsize=9, color=MUTED, va="bottom", family="DejaVu Sans")
 
     fig.savefig(out, facecolor=BG, bbox_inches="tight", pad_inches=0.3)

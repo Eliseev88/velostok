@@ -20,6 +20,10 @@
   .head{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
   .logo{font-size:20px;font-weight:700;letter-spacing:-.3px}
   .logo span{color:#9ec6d6}
+  .nav{display:flex;gap:4px}
+  .nav a{padding:7px 15px;border-radius:8px;font-size:14px;color:#b9d2de}
+  .nav a:hover{background:rgba(255,255,255,.09);color:#fff}
+  .nav a.on{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
   .stats{margin-left:auto;display:flex;gap:22px;font-size:13px;color:#c3d6e0;flex-wrap:wrap}
   .stats b{color:#fff;font-size:15px;display:block}
 
@@ -77,7 +81,11 @@
 <body>
 <header>
   <div class="wrap head">
-    <a href="/" class="logo">Вело<span>Склад</span> · витрина</a>
+    <a href="/" class="logo">Вело<span>Склад</span></a>
+    <nav class="nav">
+      <a href="/" class="{{ 'on' if section != 'parts' }}">Велосипеды</a>
+      <a href="/parts" class="{{ 'on' if section == 'parts' }}">Запчасти</a>
+    </nav>
     {% block headstats %}{% endblock %}
   </div>
 </header>
