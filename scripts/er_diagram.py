@@ -496,7 +496,7 @@ def main(out="db_schema.png"):
             ha="center", va="center", zorder=5, family="DejaVu Sans",
             bbox=dict(boxstyle="round,pad=0.2", facecolor=BG, edgecolor="none"))
 
-    ax.text(17.9, 16.5, "АКСЕССУАРЫ · 519", fontsize=11, fontweight="bold",
+    ax.text(17.9, 16.5, "АКСЕССУАРЫ · 2 633", fontsize=11, fontweight="bold",
             color=HEAD_ACC, family="DejaVu Sans")
 
     # связи «дочерняя -> equipment.id»
@@ -534,13 +534,13 @@ def main(out="db_schema.png"):
             ha="center", va="center", zorder=5, family="DejaVu Sans",
             bbox=dict(boxstyle="round,pad=0.2", facecolor=BG, edgecolor="none"))
 
-    ax.text(36.6, 16.5, "ЭКИПИРОВКА · 221", fontsize=11, fontweight="bold",
+    ax.text(36.6, 16.5, "ЭКИПИРОВКА · 1 590", fontsize=11, fontweight="bold",
             color=HEAD_EQ, family="DejaVu Sans")
 
     # заголовки семейств
     ax.text(0.5, 34.0, "ВЕЛОСИПЕДЫ · 16 176", fontsize=11, fontweight="bold",
             color=HEAD_MAIN, family="DejaVu Sans")
-    ax.text(0.5, 16.5, "ЗАПЧАСТИ · 1 016", fontsize=11, fontweight="bold",
+    ax.text(0.5, 16.5, "ЗАПЧАСТИ · 4 191", fontsize=11, fontweight="bold",
             color=HEAD_PARTS, family="DejaVu Sans")
 
     # логическая связь crawl_queue -> bikes (без FK: очередь живёт своей жизнью)
@@ -561,7 +561,7 @@ def main(out="db_schema.png"):
     ax.text(0.5, 35.7, "velostok — схема базы данных",
             fontsize=19, fontweight="bold", color=TEXT, family="DejaVu Sans")
     ax.text(0.5, 35.15,
-            "Товары, спарсенные с velosklad.ru  ·  MySQL 9.3, utf8mb4  ·  17 932 товара в четырёх разделах",
+            "Товары, спарсенные с velosklad.ru  ·  MySQL 9.3, utf8mb4  ·  24 590 товаров в четырёх разделах",
             fontsize=10.5, color=MUTED, family="DejaVu Sans")
 
     legend = [
