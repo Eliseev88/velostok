@@ -157,25 +157,39 @@ def bike(bike_id):
                            labels=AVAILABILITY_LABELS)
 
 
-PART_SORTS = {
-    "cheap": ("p.price IS NULL, p.price ASC", "сначала дешёвые"),
-    "expensive": ("p.price DESC", "сначала дорогие"),
-    "discount": ("p.discount_pct IS NULL, p.discount_pct DESC", "по размеру скидки"),
-    "name": ("p.name ASC", "по названию"),
+CATALOG_SORTS = {
+    "cheap": ("price IS NULL, price ASC", "сначала дешёвые"),
+    "expensive": ("price DESC", "сначала дорогие"),
+    "discount": ("discount_pct IS NULL, discount_pct DESC", "по размеру скидки"),
+    "name": ("name ASC", "по названию"),
+}
+
+# Запчасти и аксессуары устроены одинаково, поэтому оба раздела обслуживаются
+# общими функциями: различаются только таблицы и адреса.
+CATALOG_SECTIONS = {
+    "parts": {
+        "title": "Запчасти", "one": "запчастей",
+        "main": "parts", "specs": "part_specs", "images": "part_images",
+        "id_col": "part_id", "list_url": "/parts", "item_url": "/part",
+    },
+    "accessories": {
+        "title": "Аксессуары", "one": "аксессуаров",
+        "main": "accessories", "specs": "accessory_specs", "images": "accessory_images",
+        "id_col": "accessory_id", "list_url": "/accessories", "item_url": "/accessory",
+    },
 }
 
 
-def build_part_filters(args):
-    """WHERE-часть для каталога запчастей."""
+def build_catalog_filters(args):
     where, params = [], []
 
     q = (args.get("q") or "").strip()
     if q:
-        where.append("p.name LIKE %s")
+        where.append("name LIKE %s")
         params.append(f"%{q}%")
 
-    for key, column in (("brand", "p.brand"), ("category", "p.category"),
-                        ("subcategory", "p.subcategory")):
+    for key, column in (("brand", "brand"), ("category", "category"),
+                        ("subcategory", "subcategory")):
         value = args.get(key) or ""
         if value:
             where.append(f"{column} = %s")
@@ -184,100 +198,120 @@ def build_part_filters(args):
     for key, op in (("price_min", ">="), ("price_max", "<=")):
         raw = (args.get(key) or "").strip()
         if raw.isdigit():
-            where.append(f"p.price {op} %s")
+            where.append(f"price {op} %s")
             params.append(int(raw))
 
     return (" WHERE " + " AND ".join(where)) if where else "", params
 
 
-@app.route("/parts")
-def parts():
+def catalog_view(section):
+    cfg = CATALOG_SECTIONS[section]
     args = request.args
     page = max(1, int(args.get("page") or 1))
-    sort_key = args.get("sort") if args.get("sort") in PART_SORTS else "cheap"
-    order_by = PART_SORTS[sort_key][0]
+    sort_key = args.get("sort") if args.get("sort") in CATALOG_SORTS else "cheap"
+    order_by = CATALOG_SORTS[sort_key][0]
 
-    where_sql, params = build_part_filters(args)
+    where_sql, params = build_catalog_filters(args)
     conn = db.connect()
     try:
         with db.cursor(conn) as cur:
-            cur.execute(f"SELECT COUNT(*) AS n FROM parts p{where_sql}", params)
+            cur.execute(f"SELECT COUNT(*) AS n FROM {cfg['main']}{where_sql}", params)
             total = cur.fetchone()["n"]
 
             cur.execute(
-                f"""SELECT p.id, p.name, p.brand, p.category, p.subcategory, p.price,
-                           p.old_price, p.discount_pct, p.availability, p.main_image
-                      FROM parts p{where_sql}
-                     ORDER BY {order_by}
-                     LIMIT %s OFFSET %s""",
+                f"""SELECT id, name, brand, category, subcategory, price, old_price,
+                           discount_pct, availability, main_image
+                      FROM {cfg['main']}{where_sql}
+                     ORDER BY {order_by} LIMIT %s OFFSET %s""",
                 params + [PER_PAGE, (page - 1) * PER_PAGE],
             )
             items = cur.fetchall()
 
-            cur.execute("""SELECT category, COUNT(*) n FROM parts
-                            WHERE category IS NOT NULL GROUP BY category
-                            ORDER BY n DESC""")
+            cur.execute(f"""SELECT category, COUNT(*) n FROM {cfg['main']}
+                             WHERE category IS NOT NULL GROUP BY category
+                             ORDER BY n DESC""")
             categories = cur.fetchall()
 
-            cur.execute("""SELECT brand, COUNT(*) n FROM parts
-                            WHERE brand IS NOT NULL GROUP BY brand
-                            ORDER BY n DESC LIMIT 40""")
+            cur.execute(f"""SELECT brand, COUNT(*) n FROM {cfg['main']}
+                             WHERE brand IS NOT NULL GROUP BY brand
+                             ORDER BY n DESC LIMIT 40""")
             brands = cur.fetchall()
 
-            # Подкатегории показываем только внутри выбранной категории —
-            # иначе список получается на сотню пунктов и бесполезен.
             subcategories = []
             if args.get("category"):
-                cur.execute("""SELECT subcategory, COUNT(*) n FROM parts
-                                WHERE category = %s AND subcategory IS NOT NULL
-                                GROUP BY subcategory ORDER BY n DESC""",
+                cur.execute(f"""SELECT subcategory, COUNT(*) n FROM {cfg['main']}
+                                 WHERE category = %s AND subcategory IS NOT NULL
+                                 GROUP BY subcategory ORDER BY n DESC""",
                             (args.get("category"),))
                 subcategories = cur.fetchall()
 
-            cur.execute("""SELECT COUNT(*) total, COUNT(price) priced,
-                                  COUNT(DISTINCT brand) brands,
-                                  COUNT(DISTINCT category) cats FROM parts""")
+            cur.execute(f"""SELECT COUNT(*) total, COUNT(price) priced,
+                                   COUNT(DISTINCT brand) brands,
+                                   COUNT(DISTINCT category) cats FROM {cfg['main']}""")
             stats = cur.fetchone()
     finally:
         conn.close()
 
     return render_template(
-        "parts.html", items=items, categories=categories, subcategories=subcategories,
+        "catalog.html", items=items, categories=categories, subcategories=subcategories,
         brands=brands, stats=stats, total=total, page=page,
         pages=max(1, math.ceil(total / PER_PAGE)),
-        sorts=PART_SORTS, sort_key=sort_key, args=args, labels=AVAILABILITY_LABELS,
+        sorts=CATALOG_SORTS, sort_key=sort_key, args=args,
+        labels=AVAILABILITY_LABELS, cfg=cfg, section=section,
     )
 
 
-@app.route("/part/<int:part_id>")
-def part(part_id):
+def item_view(section, item_id):
+    cfg = CATALOG_SECTIONS[section]
     conn = db.connect()
     try:
         with db.cursor(conn) as cur:
-            cur.execute("SELECT * FROM parts WHERE id = %s", (part_id,))
+            cur.execute(f"SELECT * FROM {cfg['main']} WHERE id = %s", (item_id,))
             item = cur.fetchone()
             if not item:
                 abort(404)
 
-            cur.execute("""SELECT name, value FROM part_specs
-                            WHERE part_id = %s ORDER BY position""", (part_id,))
+            cur.execute(f"""SELECT name, value FROM {cfg['specs']}
+                             WHERE {cfg['id_col']} = %s ORDER BY position""", (item_id,))
             specs = cur.fetchall()
 
-            cur.execute("""SELECT url, is_main FROM part_images
-                            WHERE part_id = %s ORDER BY is_main DESC, position""", (part_id,))
+            cur.execute(f"""SELECT url, is_main FROM {cfg['images']}
+                             WHERE {cfg['id_col']} = %s
+                             ORDER BY is_main DESC, position""", (item_id,))
             images = cur.fetchall()
 
             # Похожие: та же подкатегория, ближайшие по цене.
-            cur.execute("""SELECT id, name, price, main_image FROM parts
-                            WHERE subcategory <=> %s AND category <=> %s AND id <> %s
-                            ORDER BY ABS(price - %s) LIMIT 4""",
-                        (item["subcategory"], item["category"], part_id, item["price"]))
+            cur.execute(f"""SELECT id, name, price, main_image FROM {cfg['main']}
+                             WHERE subcategory <=> %s AND category <=> %s AND id <> %s
+                             ORDER BY ABS(price - %s) LIMIT 4""",
+                        (item["subcategory"], item["category"], item_id, item["price"]))
             similar = cur.fetchall()
     finally:
         conn.close()
 
-    return render_template("part.html", p=item, specs=specs, images=images,
-                           similar=similar, labels=AVAILABILITY_LABELS)
+    return render_template("item.html", p=item, specs=specs, images=images,
+                           similar=similar, labels=AVAILABILITY_LABELS,
+                           cfg=cfg, section=section)
+
+
+@app.route("/parts")
+def parts():
+    return catalog_view("parts")
+
+
+@app.route("/part/<int:item_id>")
+def part(item_id):
+    return item_view("parts", item_id)
+
+
+@app.route("/accessories")
+def accessories():
+    return catalog_view("accessories")
+
+
+@app.route("/accessory/<int:item_id>")
+def accessory(item_id):
+    return item_view("accessories", item_id)
 
 
 @app.template_filter("money")

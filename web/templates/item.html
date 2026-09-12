@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% set section = "parts" %}
 {% block title %}{{ p.name }}{% endblock %}
 
 {% block content %}
@@ -33,9 +32,9 @@
 </style>
 
 <div class="crumbs">
-  <a href="/parts">← все запчасти</a>
-  {% if p.category %} · <a href="/parts?category={{ p.category }}">{{ p.category }}</a>{% endif %}
-  {% if p.subcategory %} · <a href="/parts?category={{ p.category }}&subcategory={{ p.subcategory }}">{{ p.subcategory }}</a>{% endif %}
+  <a href="{{ cfg.list_url }}">← {{ cfg.title|lower }}</a>
+  {% if p.category %} · <a href="{{ cfg.list_url }}?category={{ p.category }}">{{ p.category }}</a>{% endif %}
+  {% if p.subcategory %} · <a href="{{ cfg.list_url }}?category={{ p.category }}&subcategory={{ p.subcategory }}">{{ p.subcategory }}</a>{% endif %}
 </div>
 
 <div class="prod">
@@ -97,7 +96,7 @@
   <h2>Похожие · {{ p.subcategory or p.category }}</h2>
   <div class="sim">
     {% for s in similar %}
-    <a class="card" href="/part/{{ s.id }}">
+    <a class="card" href="{{ cfg.item_url }}/{{ s.id }}">
       <div class="thumb">{% if s.main_image %}<img src="{{ s.main_image }}" loading="lazy">{% endif %}</div>
       <div class="card-body">
         <div class="cname" style="font-size:13px">{{ s.name }}</div>

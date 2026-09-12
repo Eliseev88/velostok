@@ -1,9 +1,8 @@
 {% extends "base.html" %}
-{% set section = "parts" %}
 
 {% block headstats %}
 <div class="stats">
-  <div><b>{{ "{:,}".format(stats.total).replace(",", " ") }}</b>запчастей</div>
+  <div><b>{{ "{:,}".format(stats.total).replace(",", " ") }}</b>{{ cfg.one }}</div>
   <div><b>{{ stats.cats }}</b>категорий</div>
   <div><b>{{ stats.brands }}</b>брендов</div>
 </div>
@@ -17,7 +16,7 @@
 
     <div class="field">
       <label>Поиск по названию</label>
-      <input type="text" name="q" value="{{ args.get('q','') }}" placeholder="Shimano, камера…">
+      <input type="text" name="q" value="{{ args.get('q','') }}" placeholder="{{ 'Shimano, камера…' if section == 'parts' else 'фонарь, насос…' }}">
     </div>
 
     <div class="field">
@@ -71,7 +70,7 @@
 
     <input type="hidden" name="sort" value="{{ sort_key }}">
     <button class="btn" type="submit">Показать</button>
-    <a class="btn btn-ghost" href="/parts">Сбросить</a>
+    <a class="btn btn-ghost" href="{{ cfg.list_url }}">Сбросить</a>
   </form>
 
   <div>
@@ -84,7 +83,7 @@
           {% set _ = qs.append(k ~ '=' ~ v) %}
         {% endfor %}
         {% set _ = qs.append('sort=' ~ key) %}
-        <option value="/parts?{{ qs|join('&') }}" {% if sort_key==key %}selected{% endif %}>
+        <option value="{{ cfg.list_url }}?{{ qs|join('&') }}" {% if sort_key==key %}selected{% endif %}>
           {{ val[1] }}
         </option>
         {% endfor %}
@@ -94,7 +93,7 @@
     {% if items %}
     <div class="grid">
       {% for p in items %}
-      <a class="card" href="/part/{{ p.id }}">
+      <a class="card" href="{{ cfg.item_url }}/{{ p.id }}">
         <div class="thumb">
           <div class="badges">
             {% if p.discount_pct %}<span class="badge b-sale">−{{ p.discount_pct }}%</span>{% endif %}
@@ -120,7 +119,7 @@
       {% set base = [] %}
       {% for k, v in args.items() if k != 'page' %}{% set _ = base.append(k ~ '=' ~ v) %}{% endfor %}
       {% macro link(p, text=None) %}
-        <a href="/parts?{{ (base + ['page=' ~ p])|join('&') }}">{{ text or p }}</a>
+        <a href="{{ cfg.list_url }}?{{ (base + ['page=' ~ p])|join('&') }}">{{ text or p }}</a>
       {% endmacro %}
       {% if page > 1 %}{{ link(page-1, '← назад') }}{% endif %}
       {% if page > 3 %}{{ link(1) }}<span>…</span>{% endif %}

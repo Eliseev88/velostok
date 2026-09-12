@@ -83,8 +83,9 @@
   <div class="wrap head">
     <a href="/" class="logo">Вело<span>Склад</span></a>
     <nav class="nav">
-      <a href="/" class="{{ 'on' if section != 'parts' }}">Велосипеды</a>
+      <a href="/" class="{{ 'on' if section == 'bikes' }}">Велосипеды</a>
       <a href="/parts" class="{{ 'on' if section == 'parts' }}">Запчасти</a>
+      <a href="/accessories" class="{{ 'on' if section == 'accessories' }}">Аксессуары</a>
     </nav>
     {% block headstats %}{% endblock %}
   </div>
